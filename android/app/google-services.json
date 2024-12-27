@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "606656212066",
+    "project_id": "mfoodapp-5568b",
+    "storage_bucket": "mfoodapp-5568b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606656212066:android:f8f83a0c5110050490f53b",
+        "android_client_info": {
+          "package_name": "com.example.mfoodapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
