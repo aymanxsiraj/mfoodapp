@@ -76,7 +76,18 @@ class _HomePageState extends State<HomePage> {
                         Navigator.pushNamed(context, '/history');
                       });
                     }
-                  ), // Space between cards
+                  ),
+                  const SizedBox(width: 16),
+                  buildCard(
+                      icon: Icons.not_listed_location_sharp,
+                      number: "",
+                      label: "Order Tracker",
+                      click: (){
+                        setState(() {
+                          Navigator.pushNamed(context, '/tracker');
+                        });
+                      }
+                  ),// Space between cards
         
                 ],
               ),

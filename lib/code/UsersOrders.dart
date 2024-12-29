@@ -27,7 +27,7 @@ class _UsersOrdersState extends State<UsersOrders> {
 
   // Fetch data from Firebase
   Future<void> _fetchData() async {
-    FirebaseApp secondaryApp = await Firebase.initializeApp(
+    secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
       options: FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
@@ -54,7 +54,8 @@ class _UsersOrdersState extends State<UsersOrders> {
               "name": value["name"],
               "number": value["number"],
               "image": value["image"],
-              "user":value["user"]
+              "user":value["user"],
+              "status":value["status"]
             });
           });
 
@@ -99,6 +100,32 @@ class _UsersOrdersState extends State<UsersOrders> {
     }
   }
 
+  void updateData(String key)
+  {
+    Map<String,String> map = {
+      "status":"Ready"
+    };
+    final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
+        app: secondaryApp,
+        databaseURL: "https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    ).ref();
+    _dbRef.child("Restaurant").child(key).update(map).whenComplete(() => showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+    title: const Text("order is up to date!"),
+    content: const Text("status update successfully!"),
+    actions: [
+      TextButton(onPressed: (){
+        Navigator.pop(context);
+      }, child: const Text("Done"))
+    ],
+    ),
+    )
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,18 +164,36 @@ class _UsersOrdersState extends State<UsersOrders> {
                     title: Text("Item Details"),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.network(item["image"]),
                         SizedBox(height: 10),
                         Text("Name: ${item["name"]}"),
                         Text("Price: ${item["number"]}"),
                         Text("User: ${item["user"]}"),
+                        Text("Order Status: ${item["status"]}"),
                       ],
                     ),
                     actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text("done"),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                updateData(item["id"]);
+                              });
+                            },
+                            child: const Text("Order IS Ready",
+                              style: TextStyle(
+                                color: Colors.green
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("done"),
+                          ),
+                        ],
                       ),
 
                     ],

@@ -27,9 +27,9 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
 
   // Fetch data from Firebase
   Future<void> _fetchData() async {
-    FirebaseApp secondaryApp = await Firebase.initializeApp(
+    secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
         appId: '1:606656212066:android:f8f83a0c5110050490f53b',
         messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
@@ -96,6 +96,10 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
         SnackBar(content: Text("Error while removing data: $e")),
       );
     }
+  }
+
+  void getOrderStatus(){
+
   }
 
   @override

@@ -51,6 +51,7 @@ class _AddFoodByAdminState extends State<AddFoodByAdmin> {
         "name": nameController.text,
         "number": numberController.text,
         "image": imageUrlController.text,
+        "status":"void"
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

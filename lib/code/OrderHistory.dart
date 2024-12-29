@@ -9,9 +9,10 @@ class OrderHistory{
   String key = "";
   String foodName = "";
   String foodPrice = "";
+  String status ="";
 
 
-  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice);
+  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.status);
 
   Future<void> uploadData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
@@ -46,6 +47,7 @@ class OrderHistory{
         "name": foodName,
         "number": foodPrice,
         "image": url,
+        "status": status
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

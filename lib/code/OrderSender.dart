@@ -10,10 +10,11 @@ class OrderSender{
   String foodName = "";
   String foodPrice = "";
   String userName = "";
+  String status = "";
 
 
 
-  OrderSender(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.userName);
+  OrderSender(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.userName, this.status);
 
   Future<void> uploadData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
@@ -48,7 +49,8 @@ class OrderSender{
         "name": foodName,
         "number": foodPrice,
         "image": url,
-        "user":userName
+        "user":userName,
+        "status":status
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

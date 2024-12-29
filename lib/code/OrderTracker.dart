@@ -2,20 +2,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:mfoodapp/code/OrderHistory.dart';
-import 'package:mfoodapp/code/OrderSender.dart';
 
 
 
-class FoodMenu extends StatefulWidget {
+
+class OrderTracker extends StatefulWidget {
   @override
-  _FoodMenuState createState() => _FoodMenuState();
+  _OrderTrackerState createState() => _OrderTrackerState();
 }
 
-class _FoodMenuState extends State<FoodMenu> {
+class _OrderTrackerState extends State<OrderTracker> {
   //final DatabaseReference databaseRef = FirebaseDatabase.instance.ref("foods");
   List<Map<String, dynamic>> dataList = [];
   bool isLoading = true;
+  late FirebaseApp secondaryApp;
+  late final DatabaseReference _dbRef;
+
 
   @override
   void initState() {
@@ -25,7 +27,7 @@ class _FoodMenuState extends State<FoodMenu> {
 
   // Fetch data from Firebase
   Future<void> _fetchData() async {
-    FirebaseApp secondaryApp = await Firebase.initializeApp(
+    secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
       options: FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
@@ -35,10 +37,10 @@ class _FoodMenuState extends State<FoodMenu> {
         databaseURL: 'https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/',
       ),
     );
-    final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
+    _dbRef = FirebaseDatabase.instanceFor(
         app: secondaryApp,
         databaseURL: "https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    ).ref().child("foods");
+    ).ref().child("Restaurant");
     try {
       _dbRef.onValue.listen((event) {
         final data = event.snapshot.value as Map<dynamic, dynamic>?;
@@ -52,7 +54,8 @@ class _FoodMenuState extends State<FoodMenu> {
               "name": value["name"],
               "number": value["number"],
               "image": value["image"],
-              "status": value["status"]
+              "user":value["user"],
+              "status":value["status"]
             });
           });
 
@@ -77,11 +80,15 @@ class _FoodMenuState extends State<FoodMenu> {
     }
   }
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Food List"),
+        title: Text("Orders List"),
         backgroundColor: Colors.orangeAccent,
       ),
       body: isLoading
@@ -101,37 +108,26 @@ class _FoodMenuState extends State<FoodMenu> {
                   title: Text("Item Details"),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Image.network(item["image"]),
                       SizedBox(height: 10),
                       Text("Name: ${item["name"]}"),
                       Text("Price: ${item["number"]}"),
+                      Text("User: ${item["user"]}"),
+                      Text("Order Status: ${item["status"]}"),
                     ],
                   ),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text("Close"),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("done"),
+                        ),
+                      ],
                     ),
 
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          OrderHistory history = OrderHistory(
-                            context,
-                            FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["number"],"process"
-                          );
-                          history.uploadData();
-                          /////////////////////
-                          OrderSender sender = OrderSender(context, FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["number"]
-                              ,FirebaseAuth.instance.currentUser!.email!,"process");
-                          sender.uploadData();
-                        });
-                      },
-                      child: Text("Order Now"),
-                    ),
                   ],
                 ),
               );
@@ -172,10 +168,10 @@ class _FoodMenuState extends State<FoodMenu> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            item["number"],
+                            item["status"],
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: Colors.redAccent,
                             ),
                           ),
                         ],
