@@ -5,7 +5,6 @@ import 'package:mfoodapp/code/AdminPage.dart';
 import 'package:mfoodapp/code/FoodMenu.dart';
 import 'package:mfoodapp/code/HomePage.dart';
 import 'package:mfoodapp/code/LoginPage.dart';
-import 'package:mfoodapp/code/OrderTracker.dart';
 import 'package:mfoodapp/code/SignUpPage.dart';
 import 'package:mfoodapp/code/UserProfilePage.dart';
 import 'package:mfoodapp/code/ViewUserOrderHistory.dart';
@@ -35,8 +34,7 @@ class MyApp extends StatelessWidget {
         '/history':(context) => ViewUserOrderHistory(),
         '/admin':(context) => AdminPage(),
         '/menu':(context) => FoodMenu(),
-        '/profile':(context) => const UserProfilePage(),
-        '/tracker':(context) => OrderTracker()
+        '/profile':(context) => const UserProfilePage()
       },
     );
   }

@@ -29,7 +29,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void _saveData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
         appId: '1:606656212066:android:f8f83a0c5110050490f53b',
         messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
@@ -56,7 +56,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         Map<String, dynamic> userData = users.toMap();
 
 
-        await _dbRef.child('users').child(UID).set(userData);
+        await _dbRef.child('users').child(UID).update(userData);
 
 
         ScaffoldMessenger.of(context).showSnackBar(

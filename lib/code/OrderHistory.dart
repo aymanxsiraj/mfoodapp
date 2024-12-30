@@ -10,14 +10,16 @@ class OrderHistory{
   String foodName = "";
   String foodPrice = "";
   String status ="";
+  String quantity ="";
+  String total ="";
 
 
-  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.status);
+  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.status, this.quantity, this.total);
 
   Future<void> uploadData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
         appId: '1:606656212066:android:f8f83a0c5110050490f53b',
         messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
@@ -34,7 +36,7 @@ class OrderHistory{
         foodName.isEmpty ||
         foodPrice.isEmpty
     ) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Please fill all fields."),
       ));
       return;
@@ -42,12 +44,15 @@ class OrderHistory{
 
     try {
       // Save data to Firebase Realtime Database
-      await _dbRef.child("users").child(uid).child("history").push().set({
+      await _dbRef.child("users").child(uid).child("history").child(key).set({
         "key" : key,
         "name": foodName,
-        "number": foodPrice,
+        "price": foodPrice,
         "image": url,
-        "status": status
+        "status": status,
+        "quantity": quantity,
+        "total": total,
+        "payment":"cash"
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mfoodapp/code/FoodMenu.dart';
-import 'package:mfoodapp/code/UserProfilePage.dart';
-import 'package:mfoodapp/code/ViewUserOrderHistory.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -77,17 +75,7 @@ class _HomePageState extends State<HomePage> {
                       });
                     }
                   ),
-                  const SizedBox(width: 16),
-                  buildCard(
-                      icon: Icons.not_listed_location_sharp,
-                      number: "",
-                      label: "Order Tracker",
-                      click: (){
-                        setState(() {
-                          Navigator.pushNamed(context, '/tracker');
-                        });
-                      }
-                  ),// Space between cards
+             // Space between cards
         
                 ],
               ),

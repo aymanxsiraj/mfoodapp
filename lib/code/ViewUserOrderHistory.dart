@@ -49,11 +49,14 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
           final List<Map<String, dynamic>> loadedData = [];
           data.forEach((key, value) {
             loadedData.add({
-              "id": key,
               "key": value["key"],
               "name": value["name"],
-              "number": value["number"],
+              "price": value["price"],
               "image": value["image"],
+              "status": value["status"],
+              "quantity": value["quantity"],
+              "total": value["total"],
+              "payment":"cash"
             });
           });
 
@@ -102,6 +105,8 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
 
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,23 +139,30 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
             child: GestureDetector(
               onTap: () {
                 // Action when item is tapped
+
+
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text("Item Details"),
+                    title: const Text("Order Details"),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.network(item["image"]),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text("Name: ${item["name"]}"),
-                        Text("Price: ${item["number"]}"),
+                        Text("Price: ${item["price"]}"),
+                        Text("Quantity: ${item["quantity"]}"),
+                        Text("Total: ${item["total"]}"),
+                        Text("Payment: ${item["payment"]}"),
+                        Text("Status: ${item["status"]}",style: const TextStyle(color: Colors.redAccent),),
                       ],
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text("done"),
+                        child: const Text("done"),
                       ),
 
                     ],
@@ -158,7 +170,7 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
                 );
               },
               child: Card(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -186,14 +198,14 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
                           children: [
                             Text(
                               item["name"],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             Text(
-                              item["number"],
+                              item["price"],
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[700],

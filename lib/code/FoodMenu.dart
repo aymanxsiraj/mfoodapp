@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:mfoodapp/code/OrderHistory.dart';
-import 'package:mfoodapp/code/OrderSender.dart';
+
+import 'OrderHistory.dart';
+import 'OrderSender.dart';
+
 
 
 
@@ -27,7 +29,7 @@ class _FoodMenuState extends State<FoodMenu> {
   Future<void> _fetchData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
         appId: '1:606656212066:android:f8f83a0c5110050490f53b',
         messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
@@ -47,10 +49,9 @@ class _FoodMenuState extends State<FoodMenu> {
           final List<Map<String, dynamic>> loadedData = [];
           data.forEach((key, value) {
             loadedData.add({
-              "id": key,
               "key": value["key"],
               "name": value["name"],
-              "number": value["number"],
+              "price": value["price"],
               "image": value["image"],
               "status": value["status"]
             });
@@ -77,17 +78,22 @@ class _FoodMenuState extends State<FoodMenu> {
     }
   }
 
+  //child: Text("Quantity: ${quantity}")
+  final ValueNotifier<int> _quantity = ValueNotifier<int>(0);
+  final ValueNotifier<int> _total = ValueNotifier<int>(0);
+  bool _isChecked = false;
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Food List"),
+        title: const Text("Food List"),
         backgroundColor: Colors.orangeAccent,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : dataList.isEmpty
-          ? Center(child: Text("No data available"))
+          ? const Center(child: Text("No data available"))
           : ListView.builder(
         itemCount: dataList.length,
         itemBuilder: (context, index) {
@@ -98,46 +104,95 @@ class _FoodMenuState extends State<FoodMenu> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text("Item Details"),
+                  title: const Text("Item Details"),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Image.network(item["image"]),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text("Name: ${item["name"]}"),
-                      Text("Price: ${item["number"]}"),
+                      
+                      Text("Price: ${item["price"]}",),
+
+                      ValueListenableBuilder(
+                        valueListenable: _quantity,
+                        builder: (context, value, child){
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Quantity: $value',
+                              ),
+                              Row(
+                                children: [
+                                  TextButton(onPressed: (){
+                                    _quantity.value++;
+                                    int p = int.parse(item["price"].toString());
+                                    _total.value = _quantity.value * p;// Increment counter
+
+                                  },
+                                      child: Icon(Icons.add)),
+
+                                  TextButton(onPressed: (){
+
+                                    _quantity.value--;
+                                    int p = int.parse(item["price"].toString());
+                                    _total.value = _quantity.value * p;// Decrement counter
+                                  },
+                                      child: const Icon(Icons.delete)),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
+                      ValueListenableBuilder(
+                        valueListenable: _total,
+                        builder: (context, value, child){
+                          return Text(
+                            'Total: $value',
+                          );
+                        },
+                      ),
+
+                      const Text("Payment: Cash",),
                     ],
                   ),
                   actions: [
+
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text("Close"),
+                      child: const Text("Close"),
                     ),
 
                     TextButton(
                       onPressed: () {
                         setState(() {
+
                           OrderHistory history = OrderHistory(
                             context,
                             FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["number"],"process"
+                              item["key"],item["image"],item["name"],item["price"],"process",_quantity.value.toString(),_total.value.toString()
                           );
                           history.uploadData();
                           /////////////////////
                           OrderSender sender = OrderSender(context, FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["number"]
-                              ,FirebaseAuth.instance.currentUser!.email!,"process");
+                              item["key"],item["image"],item["name"],item["price"]
+                              ,FirebaseAuth.instance.currentUser!.email!,"process",_quantity.value.toString(),_total.value.toString());
                           sender.uploadData();
+
                         });
                       },
-                      child: Text("Order Now"),
+                      child: const Text("Order Now"),
                     ),
                   ],
                 ),
               );
             },
             child: Card(
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               elevation: 5,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -156,7 +211,7 @@ class _FoodMenuState extends State<FoodMenu> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
 
                     // Name and Number
                     Expanded(
@@ -165,14 +220,14 @@ class _FoodMenuState extends State<FoodMenu> {
                         children: [
                           Text(
                             item["name"],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text(
-                            item["number"],
+                            item["price"],
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[700],

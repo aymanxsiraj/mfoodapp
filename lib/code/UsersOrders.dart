@@ -29,7 +29,7 @@ class _UsersOrdersState extends State<UsersOrders> {
   Future<void> _fetchData() async {
     secondaryApp = await Firebase.initializeApp(
       name: 'mfoodapp',
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
         appId: '1:606656212066:android:f8f83a0c5110050490f53b',
         messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
@@ -49,13 +49,16 @@ class _UsersOrdersState extends State<UsersOrders> {
           final List<Map<String, dynamic>> loadedData = [];
           data.forEach((key, value) {
             loadedData.add({
-              "id": key,
+              "uid": value["uid"],
               "key": value["key"],
               "name": value["name"],
-              "number": value["number"],
+              "price": value["price"],
               "image": value["image"],
               "user":value["user"],
-              "status":value["status"]
+              "status":value["status"],
+              "quantity": value["quantity"],
+              "total": value["total"],
+              "payment":"cash"
             });
           });
 
@@ -100,7 +103,7 @@ class _UsersOrdersState extends State<UsersOrders> {
     }
   }
 
-  void updateData(String key)
+  void updateData(String uid, String key)
   {
     Map<String,String> map = {
       "status":"Ready"
@@ -120,8 +123,36 @@ class _UsersOrdersState extends State<UsersOrders> {
       }, child: const Text("Done"))
     ],
     ),
+    ).whenComplete(() => updateUserHistory(uid, key)
     )
     );
+  }
+
+  void updateUserHistory(String uid, String key){
+    Map<String,String> map = {
+      "status":"Ready"
+    };
+    final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
+        app: secondaryApp,
+        databaseURL: "https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    ).ref();
+    _dbRef.child("users").child(uid).child("history").child(key).update(map).whenComplete(() => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("user history is up to date!"),
+        content: const Text("history update successfully!"),
+        actions: [
+          TextButton(onPressed: (){
+            Navigator.pop(context);
+          }, child: const Text("Done"))
+        ],
+      ),
+    ).whenComplete(() => {
+
+    })
+    );
+
+
   }
 
 
@@ -130,13 +161,13 @@ class _UsersOrdersState extends State<UsersOrders> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Orders List"),
+        title: const Text("Orders Management"),
         backgroundColor: Colors.orangeAccent,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : dataList.isEmpty
-          ? Center(child: Text("No data available"))
+          ? const Center(child: Text("No data available"))
           : ListView.builder(
         itemCount: dataList.length,
         itemBuilder: (context, index) {
@@ -145,8 +176,8 @@ class _UsersOrdersState extends State<UsersOrders> {
             background: Container(
               color: Colors.redAccent,
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(Icons.delete,color: Colors.black,),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Icon(Icons.delete,color: Colors.black,),
             ),
             key: ValueKey(dataList[index]),
             onDismissed: (DismissDirection direction) {
@@ -161,15 +192,18 @@ class _UsersOrdersState extends State<UsersOrders> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text("Item Details"),
+                    title: const Text("Item Details"),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.network(item["image"]),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text("Name: ${item["name"]}"),
-                        Text("Price: ${item["number"]}"),
+                        Text("Price: ${item["price"]}"),
+                        Text("Quantity: ${item["quantity"]}"),
+                        Text("Total: ${item["total"]}"),
+                        Text("Payment: ${item["payment"]}"),
                         Text("User: ${item["user"]}"),
                         Text("Order Status: ${item["status"]}"),
                       ],
@@ -180,7 +214,7 @@ class _UsersOrdersState extends State<UsersOrders> {
                           TextButton(
                             onPressed: () {
                               setState(() {
-                                updateData(item["id"]);
+                                updateData(item["uid"],item["key"]);
                               });
                             },
                             child: const Text("Order IS Ready",
@@ -201,7 +235,7 @@ class _UsersOrdersState extends State<UsersOrders> {
                 );
               },
               child: Card(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -220,7 +254,7 @@ class _UsersOrdersState extends State<UsersOrders> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
 
                       // Name and Number
                       Expanded(
@@ -229,12 +263,12 @@ class _UsersOrdersState extends State<UsersOrders> {
                           children: [
                             Text(
                               item["name"],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             Text(
                               item["user"],
                               style: TextStyle(
