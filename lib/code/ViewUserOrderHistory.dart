@@ -56,7 +56,7 @@ class _ViewUserOrderHistoryState extends State<ViewUserOrderHistory> {
               "status": value["status"],
               "quantity": value["quantity"],
               "total": value["total"],
-              "payment":"cash"
+              "payment": value["payment"]
             });
           });
 

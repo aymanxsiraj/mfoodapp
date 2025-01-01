@@ -81,7 +81,9 @@ class _FoodMenuState extends State<FoodMenu> {
   //child: Text("Quantity: ${quantity}")
   final ValueNotifier<int> _quantity = ValueNotifier<int>(0);
   final ValueNotifier<int> _total = ValueNotifier<int>(0);
-  bool _isChecked = false;
+  final ValueNotifier<String> _payment = ValueNotifier<String>("cash");
+  bool isChecked = false;
+
   @override
   Widget build(BuildContext context) {
 
@@ -101,96 +103,142 @@ class _FoodMenuState extends State<FoodMenu> {
           return GestureDetector(
             onTap: () {
               // Action when item is tapped
-              showDialog(
+              showBottomSheet(
+                elevation: 20,
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Item Details"),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.network(item["image"]),
-                      const SizedBox(height: 10),
-                      Text("Name: ${item["name"]}"),
-                      
-                      Text("Price: ${item["price"]}",),
+                builder: (context) => SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.network(item["image"]),
+                        const SizedBox(height: 10),
+                        Text("Name: ${item["name"]}"),
 
-                      ValueListenableBuilder(
-                        valueListenable: _quantity,
-                        builder: (context, value, child){
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Quantity: $value',
+                        Text("Price: ${item["price"]}",),
+
+                        ValueListenableBuilder(
+                          valueListenable: _quantity,
+                          builder: (context, value, child){
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Quantity: $value',
+                                ),
+                                Row(
+                                  children: [
+                                    ElevatedButton(onPressed: (){
+                                      _quantity.value++;
+                                      int p = int.parse(item["price"].toString());
+                                      _total.value = _quantity.value * p;// Increment counter
+
+                                    },
+                                        child: const Icon(Icons.add, color: Colors.orangeAccent,)),
+                                    const SizedBox(width: 10,),
+                                    ElevatedButton(onPressed: (){
+
+                                      _quantity.value--;
+                                      int p = int.parse(item["price"].toString());
+                                      _total.value = _quantity.value * p;// Decrement counter
+                                    },
+                                        child: const Icon(Icons.delete,color: Colors.black,)),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+
+                        ValueListenableBuilder(
+                          valueListenable: _total,
+                          builder: (context, value, child){
+                            return Text(
+                              'Total: $value',
+                            );
+                          },
+                        ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: _payment,
+                              builder: (context, value, child){
+                                return Text("Payment: ${_payment.value}",);
+                              },
+                            ),
+
+                            ValueListenableBuilder(
+                              valueListenable: _payment,
+                              builder: (context, value, child){
+                                return Checkbox(value: isChecked, onChanged:(bool? value){
+                                  setState(() {
+                                    isChecked = value!;
+                                    if(isChecked){
+                                      _payment.value = "mBok";
+                                    }
+                                    else{
+                                      _payment.value = "cash";
+                                    }
+                                  });
+                                },
+
+                                );
+                              },
+                            ),
+
+                          ],
+                        ),
+
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Close",style: TextStyle(color: Colors.black),),
                               ),
-                              Row(
-                                children: [
-                                  TextButton(onPressed: (){
-                                    _quantity.value++;
-                                    int p = int.parse(item["price"].toString());
-                                    _total.value = _quantity.value * p;// Increment counter
+                            ),
+                            const SizedBox(width: 10,),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
 
-                                  },
-                                      child: Icon(Icons.add)),
+                                    OrderHistory history = OrderHistory(
+                                        context,
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                        item["key"],item["image"],item["name"],item["price"],"process",_quantity.value.toString(),_total.value.toString(),_payment.value.toString()
+                                    );
+                                    history.uploadData();
+                                    /////////////////////
+                                    OrderSender sender = OrderSender(context, FirebaseAuth.instance.currentUser!.uid,
+                                        item["key"],item["image"],item["name"],item["price"]
+                                        ,FirebaseAuth.instance.currentUser!.email!,"process",_quantity.value.toString(),_total.value.toString(),_payment.value.toString());
+                                    sender.uploadData();
 
-                                  TextButton(onPressed: (){
-
-                                    _quantity.value--;
-                                    int p = int.parse(item["price"].toString());
-                                    _total.value = _quantity.value * p;// Decrement counter
-                                  },
-                                      child: const Icon(Icons.delete)),
-                                ],
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orangeAccent
+                                ),
+                                child: const Text("Order Now",style: TextStyle(color: Colors.black),),
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                            ),
+                          ],
+                        ),
 
-                      ValueListenableBuilder(
-                        valueListenable: _total,
-                        builder: (context, value, child){
-                          return Text(
-                            'Total: $value',
-                          );
-                        },
-                      ),
-
-                      const Text("Payment: Cash",),
-                    ],
+                      ],
+                    ),
                   ),
-                  actions: [
-
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Close"),
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-
-                          OrderHistory history = OrderHistory(
-                            context,
-                            FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["price"],"process",_quantity.value.toString(),_total.value.toString()
-                          );
-                          history.uploadData();
-                          /////////////////////
-                          OrderSender sender = OrderSender(context, FirebaseAuth.instance.currentUser!.uid,
-                              item["key"],item["image"],item["name"],item["price"]
-                              ,FirebaseAuth.instance.currentUser!.email!,"process",_quantity.value.toString(),_total.value.toString());
-                          sender.uploadData();
-
-                        });
-                      },
-                      child: const Text("Order Now"),
-                    ),
-                  ],
                 ),
               );
             },
+            
             child: Card(
               margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               elevation: 5,

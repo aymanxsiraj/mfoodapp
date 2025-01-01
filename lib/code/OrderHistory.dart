@@ -12,9 +12,10 @@ class OrderHistory{
   String status ="";
   String quantity ="";
   String total ="";
+  String payment = "";
 
 
-  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.status, this.quantity, this.total);
+  OrderHistory(this.context, this.uid, this.key, this.url, this.foodName, this.foodPrice, this.status, this.quantity, this.total, this.payment);
 
   Future<void> uploadData() async {
     FirebaseApp secondaryApp = await Firebase.initializeApp(
@@ -52,7 +53,7 @@ class OrderHistory{
         "status": status,
         "quantity": quantity,
         "total": total,
-        "payment":"cash"
+        "payment": payment
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

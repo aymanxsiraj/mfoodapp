@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -8,9 +10,47 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  String _userName = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  void _fetchUserData() async {
+    FirebaseApp secondaryApp = await Firebase.initializeApp(
+      name: 'mfoodapp',
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyAX3vZm1osOl5ff_Aerv2c_UbrjUIRlKI0',
+        appId: '1:606656212066:android:f8f83a0c5110050490f53b',
+        messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+        projectId: 'mfoodapp-5568b',
+        databaseURL: 'https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/',
+      ),
+    );
+    final DatabaseReference _databaseReference = FirebaseDatabase.instanceFor(
+        app: secondaryApp,
+        databaseURL: "https://mfoodapp-5568b-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    ).ref();
+
+    final DataSnapshot snapshot = await _databaseReference.child("users").child(FirebaseAuth.instance.currentUser!.uid).child("name").get();
+    if (snapshot.exists) {
+      
+      setState(() {
+        _userName = snapshot.value.toString();
+      });
+    } else {
+      setState(() {
+        _userName = 'YourName';
+      });
+    }
   }
 
   @override
@@ -18,7 +58,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orangeAccent,
-        title: Text("Home"),
+        title: Text(_userName),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
